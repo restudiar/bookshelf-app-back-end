@@ -28,7 +28,7 @@ const addBookHandler = (request, h) => {
 
   books.push(newBook);
 
-  const isNameNull = books.filter(() => request.payload.name === '').length > 0;
+  const isNameNull = books.filter(() => request.payload.name === ' ' || request.payload.name === '' || request.payload.name === undefined).length > 0;
   const isInvalidReadPage = books.filter(() => request.payload.readPage
   > request.payload.pageCount).length > 0;
   const isSuccess = books.filter((book) => book.id === id).length > 0;
@@ -100,8 +100,68 @@ const getBookByIdHandler = (request, h) => {
   return response;
 };
 
+const editBookByIdHandler = (request, h) => {
+  const { id } = request.params;
+  const {
+    name, year, author, summary, publisher, pageCount, readPage, reading,
+  } = request.payload;
+  const updatedAt = new Date().toISOString();
+
+  const index = books.findIndex((book) => book.id === id);
+  const isNameNull = books.filter(() => request.payload.name === ' ' || request.payload.name === '' || request.payload.name === undefined).length > 0;
+  const isInvalidReadPage = books.filter(() => request.payload.readPage
+  > request.payload.pageCount).length > 0;
+
+  if (isNameNull) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal memperbarui buku. Mohon isi nama buku',
+    });
+    response.code(400);
+    return response;
+  }
+
+  if (isInvalidReadPage) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
+    });
+    response.code(400);
+    return response;
+  }
+
+  if (index !== -1) {
+    books[index] = {
+      ...books[index],
+      name,
+      year,
+      author,
+      summary,
+      publisher,
+      pageCount,
+      readPage,
+      reading,
+      updatedAt,
+    };
+    const response = h.response({
+      status: 'success',
+      message: 'Buku berhasil diperbarui',
+    });
+    response.code(200);
+    return response;
+  }
+
+  const response = h.response({
+    status: 'fail',
+    message: 'Gagal memperbarui buku. Id tidak ditemukan',
+  });
+  response.code(404);
+  return response;
+};
+
 module.exports = {
   addBookHandler,
   getAllBooksHandler,
   getBookByIdHandler,
+  editBookByIdHandler,
 };
