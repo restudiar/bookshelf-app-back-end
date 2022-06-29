@@ -1,5 +1,5 @@
 const { nanoid } = require('nanoid');
-const books = require('./books');
+const booksSource = require('./books');
 
 const addBookHandler = (request, h) => {
   const {
@@ -26,12 +26,12 @@ const addBookHandler = (request, h) => {
     updatedAt,
   };
 
-  books.push(newBook);
+  booksSource.push(newBook);
 
-  const isNameNull = books.filter(() => request.payload.name === ' ' || request.payload.name === '' || request.payload.name === undefined).length > 0;
-  const isInvalidReadPage = books.filter(() => request.payload.readPage
+  const isNameNull = booksSource.filter(() => request.payload.name === ' ' || request.payload.name === '' || request.payload.name === undefined).length > 0;
+  const isInvalidReadPage = booksSource.filter(() => request.payload.readPage
   > request.payload.pageCount).length > 0;
-  const isSuccess = books.filter((book) => book.id === id).length > 0;
+  const isSuccess = booksSource.filter((book) => book.id === id).length > 0;
 
   if (isNameNull) {
     const response = h.response({
@@ -56,7 +56,7 @@ const addBookHandler = (request, h) => {
       status: 'success',
       message: 'Buku berhasil ditambahkan',
       data: {
-        noteId: id,
+        bookId: id,
       },
     });
     response.code(201);
@@ -71,17 +71,28 @@ const addBookHandler = (request, h) => {
   return response;
 };
 
-const getAllBooksHandler = () => ({
-  status: 'success',
-  data: {
-    books,
-  },
-});
+const getAllBooksHandler = () => {
+  const books = booksSource.map((book) => {
+    const buku = {
+      id: book.id,
+      name: book.name,
+      publisher: book.publisher,
+    };
+    return buku;
+  });
+  const response = ({
+    status: 'success',
+    data: {
+      books,
+    },
+  });
+  return response;
+};
 
 const getBookByIdHandler = (request, h) => {
   const { id } = request.params;
 
-  const book = books.filter((n) => n.id === id)[0];
+  const book = booksSource.filter((n) => n.id === id)[0];
 
   if (book !== undefined) {
     return {
@@ -107,9 +118,9 @@ const editBookByIdHandler = (request, h) => {
   } = request.payload;
   const updatedAt = new Date().toISOString();
 
-  const index = books.findIndex((book) => book.id === id);
-  const isNameNull = books.filter(() => request.payload.name === ' ' || request.payload.name === '' || request.payload.name === undefined).length > 0;
-  const isInvalidReadPage = books.filter(() => request.payload.readPage
+  const index = booksSource.findIndex((book) => book.id === id);
+  const isNameNull = booksSource.filter(() => request.payload.name === ' ' || request.payload.name === '' || request.payload.name === undefined).length > 0;
+  const isInvalidReadPage = booksSource.filter(() => request.payload.readPage
   > request.payload.pageCount).length > 0;
 
   if (isNameNull) {
@@ -131,8 +142,8 @@ const editBookByIdHandler = (request, h) => {
   }
 
   if (index !== -1) {
-    books[index] = {
-      ...books[index],
+    booksSource[index] = {
+      ...booksSource[index],
       name,
       year,
       author,
@@ -162,10 +173,10 @@ const editBookByIdHandler = (request, h) => {
 const deleteBookByIdHandler = (request, h) => {
   const { id } = request.params;
 
-  const index = books.findIndex((book) => book.id === id);
+  const index = booksSource.findIndex((book) => book.id === id);
 
   if (index !== -1) {
-    books.splice(index, 1);
+    booksSource.splice(index, 1);
     const response = h.response({
       status: 'success',
       message: 'Buku berhasil dihapus',
