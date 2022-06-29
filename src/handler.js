@@ -28,7 +28,7 @@ const addBookHandler = (request, h) => {
 
   booksSource.push(newBook);
 
-  const isNameNull = booksSource.filter(() => request.payload.name === ' ' || request.payload.name === '' || request.payload.name === undefined).length > 0;
+  const isNameNull = booksSource.filter(() => request.payload.name === ' ' || request.payload.name === '' || request.payload.name === undefined || request.payload.name === null).length > 0;
   const isInvalidReadPage = booksSource.filter(() => request.payload.readPage
   > request.payload.pageCount).length > 0;
   const isSuccess = booksSource.filter((book) => book.id === id).length > 0;
@@ -119,7 +119,7 @@ const editBookByIdHandler = (request, h) => {
   const updatedAt = new Date().toISOString();
 
   const index = booksSource.findIndex((book) => book.id === id);
-  const isNameNull = booksSource.filter(() => request.payload.name === ' ' || request.payload.name === '' || request.payload.name === undefined).length > 0;
+  const isNameNull = booksSource.filter(() => request.payload.name === ' ' || request.payload.name === '' || request.payload.name === undefined || request.payload.name === null).length > 0;
   const isInvalidReadPage = booksSource.filter(() => request.payload.readPage
   > request.payload.pageCount).length > 0;
 
